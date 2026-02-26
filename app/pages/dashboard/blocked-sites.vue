@@ -90,7 +90,7 @@ definePageMeta({
   layout: false
 })
 
-const apiBase = 'http://localhost:8080/api/v1'
+const apiBase = 'http://localhost:1998/api/v1'
 const showAddModal = ref(false)
 const newSite = ref({ url: '', reason: '' })
 

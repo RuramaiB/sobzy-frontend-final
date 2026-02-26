@@ -70,11 +70,11 @@
 
       <!-- Quick Metrics -->
       <div class="space-y-8">
-         <div class="glass-card p-8 group transition-all hover:bg-gray-900">
+         <div class="glass-card p-8 group transition-all hover:bg-gray-900 text-gray-900 hover:text-white">
             <h5 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 group-hover:text-gray-300">Active Clients</h5>
             <div class="flex items-center justify-between">
-               <span class="text-5xl font-black text-gray-900 group-hover:text-white">--</span>
-               <div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-900 group-hover:bg-white/10 group-hover:text-white transition-all">
+               <span class="text-5xl font-black">{{ hotspotInfo.connectedDevices?.length || 0 }}</span>
+               <div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-current group-hover:bg-white/10 transition-all">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
@@ -82,17 +82,83 @@
             </div>
          </div>
 
-         <div class="glass-card p-8">
-            <h5 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Signal Integrity</h5>
-            <div class="flex items-center space-x-4">
-               <div class="flex-1 bg-gray-100 h-2 rounded-full overflow-hidden">
-                  <div class="bg-gray-900 h-full" :style="{ width: isBroadcasting ? '94%' : '0%' }"></div>
-               </div>
-               <span class="text-lg font-black text-gray-900">{{ isBroadcasting ? '94%' : '0%' }}</span>
+         <div class="glass-card p-8 group transition-all hover:bg-gray-900 text-gray-900 hover:text-white">
+            <h5 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 group-hover:text-gray-300">Host Network</h5>
+            <div class="space-y-4">
+              <div>
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Host IP</span>
+                <span class="text-xl font-bold">{{ hotspotInfo.hostIp || '--' }}</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Upstream Interface</span>
+                <span class="text-[14px] font-bold">{{ hotspotInfo.upstreamInterface || '--' }}</span>
+              </div>
             </div>
-            <p class="text-[10px] text-gray-400 mt-4 font-bold uppercase">{{ isBroadcasting ? 'Optimal performance detected' : 'Hotspot is offline' }}</p>
          </div>
       </div>
+    </div>
+
+    <!-- Connected Devices UI (Windows Settings Style) -->
+    <div class="mt-12 glass-card p-10">
+       <div class="flex items-center justify-between mb-10">
+          <div>
+            <h3 class="text-2xl font-black text-gray-900 tracking-tighter">Connected Devices</h3>
+            <p class="text-sm text-gray-500 mt-1 font-medium">Real-time view of devices using your internet connection</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="animate-pulse w-2 h-2 rounded-full bg-green-500"></div>
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+              {{ hotspotInfo.connectedDevices?.length || 0 }} Devices Online
+            </span>
+          </div>
+       </div>
+
+       <div v-if="hotspotInfo.connectedDevices?.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-for="device in hotspotInfo.connectedDevices" :key="device.mac" 
+               class="p-6 bg-gray-50 rounded-2xl border border-gray-100 transition-all hover:bg-white hover:shadow-xl hover:border-transparent group">
+            <div class="flex items-start space-x-5">
+              <!-- Device Icon -->
+              <div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-gray-900 group-hover:bg-gray-900 group-hover:text-white transition-colors">
+                <svg v-if="device.deviceType === 'Mobile'" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <svg v-else class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+
+              <!-- Device Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-1">
+                  <h4 class="font-extrabold text-gray-900 truncate group-hover:text-gray-900 transition-colors">{{ device.hostname }}</h4>
+                  <span v-if="device.hostname.includes('Host')" class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] uppercase font-black rounded">Host</span>
+                  <span v-else class="px-2 py-0.5 bg-green-50 text-green-600 text-[8px] uppercase font-black rounded">Online</span>
+                </div>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center text-[11px] font-medium text-gray-400">
+                    <span class="w-14 uppercase tracking-tighter">IP Address:</span>
+                    <span class="text-gray-900 font-mono">{{ device.ip || 'Assigning...' }}</span>
+                  </div>
+                  <div class="flex items-center text-[11px] font-medium text-gray-400">
+                    <span class="w-14 uppercase tracking-tighter">Physical:</span>
+                    <span class="text-gray-900 font-mono uppercase">{{ device.mac }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+       </div>
+
+       <div v-else class="py-20 flex flex-col items-center justify-center text-center">
+          <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mb-2">No devices connected</h4>
+          <p class="text-gray-500 max-w-xs mx-auto">When devices connect to your hotspot, they'll appear here automatically.</p>
+       </div>
     </div>
   </NuxtLayout>
 </template>
@@ -102,11 +168,15 @@ definePageMeta({
   layout: false
 })
 
-const apiBase = 'http://localhost:8080/api/v1/hotspot'
+const apiBase = 'http://localhost:1998/api/v1/hotspot'
 const hotspotInfo = ref({
   ssid: '',
   password: '',
-  status: 'Off'
+  status: 'Off',
+  hostIp: '',
+  gatewayIp: '192.168.137.1',
+  upstreamInterface: '',
+  connectedDevices: []
 })
 const loading = ref(false)
 const showPassword = ref(false)
@@ -140,7 +210,7 @@ const toggleHotspot = async () => {
 
 onMounted(() => {
     fetchHotspotDetails()
-    // Optional: Refresh periodically
+    // Refresh periodically
     const interval = setInterval(fetchHotspotDetails, 5000)
     onUnmounted(() => clearInterval(interval))
 })

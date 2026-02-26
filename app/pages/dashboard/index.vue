@@ -118,7 +118,7 @@ definePageMeta({
 })
 
 const config = useRuntimeConfig()
-const apiBase = 'http://localhost:8080/api/v1'
+const apiBase = 'http://localhost:1998/api/v1'
 
 // Fetch statistics from backend
 const { data: statsData, refresh: refreshStats } = await useFetch(`${apiBase}/traffic/statistics`, {

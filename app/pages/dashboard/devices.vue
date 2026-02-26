@@ -62,7 +62,7 @@ definePageMeta({
   layout: false
 })
 
-const apiBase = 'http://localhost:8080/api/v1'
+const apiBase = 'http://localhost:1998/api/v1'
 const isScanning = ref(false)
 
 const { data: devicesData, refresh: refreshDevices } = await useFetch(`${apiBase}/devices/active`)

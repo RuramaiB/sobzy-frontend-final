@@ -133,7 +133,7 @@ const handleRegister = async () => {
     loading.value = true
     error.value = null
     try {
-        const apiBase = 'http://localhost:8080/api/v1/auth'
+        const apiBase = 'http://localhost:1998/api/v1/auth'
         
         // 1. Register user
         const authData = await $fetch(`${apiBase}/register`, {

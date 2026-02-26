@@ -129,7 +129,7 @@ const handleLogin = async () => {
     error.value = null
     try {
         // 1. Authenticate with backend
-        const apiBase = 'http://localhost:8080/api/v1/auth'
+        const apiBase = 'http://localhost:1998/api/v1/auth'
         const authData = await $fetch(`${apiBase}/login`, {
             method: 'POST',
             body: form
@@ -140,7 +140,7 @@ const handleLogin = async () => {
             login(authData.accessToken, authData.user)
 
             // 3. Register IP in Captive Portal
-            const portalApi = 'http://localhost:8080/api/v1/portal'
+            const portalApi = 'http://localhost:1998/api/v1/portal'
             try {
                 await $fetch(`${portalApi}/login-success`, { 
                     method: 'POST',
