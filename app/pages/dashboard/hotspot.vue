@@ -1,5 +1,6 @@
 <template>
   <NuxtLayout name="dashboard">
+  <div>
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
       <div>
         <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Hotspot Configuration</h2>
@@ -160,12 +161,13 @@
           <p class="text-gray-500 max-w-xs mx-auto">When devices connect to your hotspot, they'll appear here automatically.</p>
        </div>
     </div>
+  </div>
   </NuxtLayout>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: false
+  layout: 'dashboard'
 })
 
 const apiBase = 'http://localhost:1998/api/v1/hotspot'
@@ -182,7 +184,9 @@ const loading = ref(false)
 const showPassword = ref(false)
 
 const isBroadcasting = computed(() => {
-    return hotspotInfo.value.status === 'On' || hotspotInfo.value.status === 'Running' || hotspotInfo.value.status === 'Success'
+    if (!hotspotInfo.value.status) return false
+    const status = hotspotInfo.value.status.toLowerCase()
+    return status === 'on' || status === 'running' || status === 'success'
 })
 
 const fetchHotspotDetails = async () => {

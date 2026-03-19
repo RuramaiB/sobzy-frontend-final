@@ -1,5 +1,6 @@
 <template>
   <NuxtLayout name="dashboard">
+  <div>
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
       <div>
         <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">System Settings</h2>
@@ -89,12 +90,13 @@
           </div>
        </div>
     </div>
+  </div>
   </NuxtLayout>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: false
+  layout: 'dashboard'
 })
 
 const policies = [

@@ -114,7 +114,7 @@
 
 <script setup>
 definePageMeta({
-  layout: false
+  layout: 'dashboard'
 })
 
 const config = useRuntimeConfig()

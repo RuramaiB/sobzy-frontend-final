@@ -54,12 +54,12 @@
           </div>
        </div>
     </div>
-  </NuxtLayout>
+    </NuxtLayout>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: false
+  layout: 'dashboard'
 })
 
 const apiBase = 'http://localhost:1998/api/v1'

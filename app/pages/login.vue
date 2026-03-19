@@ -18,8 +18,12 @@
 
       <div class="glass-card p-10 border-2 border-gray-900/5 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]">
         <div class="mb-10 text-center">
-          <h2 class="text-3xl font-black text-gray-900 tracking-tight mb-2">Network Login</h2>
-          <p class="text-gray-500 font-medium">Please authenticate to access the university network services.</p>
+          <h2 class="text-3xl font-black text-gray-900 tracking-tight mb-2">
+            {{ isAdminMode ? 'Admin Login' : 'Network Login' }}
+          </h2>
+          <p class="text-gray-500 font-medium text-sm">
+            {{ isAdminMode ? 'Sign in to your account with your credentials' : 'Enter your email to access the network services.' }}
+          </p>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-6">
@@ -28,27 +32,27 @@
           </div>
 
           <div v-if="success" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-xl">
-             <p class="text-xs font-bold text-green-700 uppercase tracking-wider">Authentication Successful! Redirecting...</p>
+             <p class="text-xs font-bold text-green-700 uppercase tracking-wider">Authentication Successful!</p>
           </div>
 
           <div class="space-y-2">
-            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Student / Staff ID</label>
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Email Address</label>
             <input 
               v-model="form.username"
-              type="text" 
-              placeholder="e.g. H210452X"
+              type="email" 
+              placeholder="e.g. user@hit.ac.zw"
               class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-gray-900 focus:bg-white outline-none transition-all font-bold text-gray-900"
               required
             >
           </div>
-          
-          <div class="space-y-2">
-            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Access PIN</label>
+
+          <div v-if="isAdminMode" class="space-y-2 animate-in transition-all duration-300">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Password</label>
             <input 
               v-model="form.password"
               type="password" 
               placeholder="••••••••"
-              class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-gray-900 focus:bg-white outline-none transition-all font-bold tracking-widest text-gray-900"
+              class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-gray-900 focus:bg-white outline-none transition-all font-bold text-gray-900"
               required
             >
           </div>
@@ -57,10 +61,10 @@
               <button 
                 type="submit" 
                 :disabled="loading || success"
-                class="flex-1 premium-button !py-5 flex items-center justify-center space-x-3 group mt-4 transition-all active:scale-95"
+                class="flex-1 premium-button !py-5 flex items-center justify-center space-x-3 group mt-4 transition-all active:scale-95 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl"
               >
                 <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white/20 border-t-white rounded-full"></span>
-                <span v-else class="text-lg">Authorize Device</span>
+                <span v-else class="text-lg font-bold">{{ isAdminMode ? 'Sign In' : 'Connect to Network' }}</span>
                 <svg v-if="!loading" class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -68,10 +72,11 @@
 
               <!-- Dev Mode Helper -->
               <button 
+                v-if="!isAdminMode"
                 type="button"
                 @click="prefillAdmin"
                 class="mt-4 px-4 bg-gray-100 text-gray-400 hover:text-gray-900 rounded-2xl transition-all flex items-center justify-center"
-                title="Development Bypass (admin/admin)"
+                title="Development Bypass (dev@hit.ac.zw)"
               >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -81,10 +86,20 @@
         </form>
 
         <div class="mt-8 text-center">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                New user? 
-                <NuxtLink to="/register" class="text-gray-900 hover:underline ml-1">Create an account</NuxtLink>
-            </p>
+            <button @click="isAdminMode = !isAdminMode" class="text-xs font-black text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-900 transition-colors">
+                {{ isAdminMode ? '← Back to Network Access' : 'Login as Administrator →' }}
+            </button>
+        </div>
+
+        <!-- Security Certificate Section -->
+        <div v-if="!isAdminMode" class="mt-8 p-6 bg-gray-50 rounded-[24px] border-2 border-dashed border-gray-200 text-center">
+            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">SSL Security Setup</h3>
+            <p class="text-[11px] font-bold text-gray-500 mb-4 leading-relaxed">To access Gmail, Google Maps, and secure sites, please install our security certificate.</p>
+            <a :href="`http://${appHostname}:1998/api/v1/portal/ca-cert`" download
+               class="inline-flex items-center space-x-2 px-5 py-2.5 bg-gray-900 text-white text-[10px] font-black uppercase tracking-wider rounded-xl hover:shadow-xl hover:-translate-y-0.5 transition-all outline-none">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+               <span>Download Certificate</span>
+            </a>
         </div>
 
         <div class="mt-10 pt-8 border-t border-gray-100">
@@ -109,10 +124,16 @@ definePageMeta({
 })
 
 const router = useRouter()
-const { login } = useAuth()
+const auth = useAuth()
 const loading = ref(false)
 const error = ref(null)
 const success = ref(false)
+const isAdminMode = ref(false)
+const appHostname = ref('localhost')
+
+onMounted(() => {
+    appHostname.value = window.location.hostname
+})
 
 const form = reactive({
   username: '',
@@ -120,42 +141,41 @@ const form = reactive({
 })
 
 const prefillAdmin = () => {
-    form.username = 'admin'
-    form.password = 'admin'
+    form.username = 'dev@hit.ac.zw'
 }
 
 const handleLogin = async () => {
     loading.value = true
     error.value = null
     try {
-        // 1. Authenticate with backend
-        const apiBase = 'http://localhost:1998/api/v1/auth'
-        const authData = await $fetch(`${apiBase}/login`, {
-            method: 'POST',
-            body: form
-        })
-
-        if (authData.accessToken) {
-            // 2. Store tokens and user info
-            login(authData.accessToken, authData.user)
-
-            // 3. Register IP in Captive Portal
-            const portalApi = 'http://localhost:1998/api/v1/portal'
-            try {
-                await $fetch(`${portalApi}/login-success`, { 
-                    method: 'POST',
-                    body: { username: form.username }
-                })
-            } catch (portalError) {
-                console.warn("Portal registration failed, but auth was successful", portalError)
-            }
+        const hostname = window.location.hostname
+        const apiBase = `http://${hostname}:1998/api/v1`
+        
+        if (isAdminMode.value) {
+            // Administrator Authentication
+            const response = await $fetch(`${apiBase}/auth/login`, {
+                method: 'POST',
+                body: form
+            })
             
-            // 4. Success feedback (important for Captive Portal detection systems)
+            auth.login(response.token, response.user)
             success.value = true
             
-            // 5. Short delay before redirection to ensure the OS detects internet
             setTimeout(() => {
                 router.push('/dashboard')
+            }, 1000)
+            
+        } else {
+            // Captive Portal Authentication (Network Access)
+            await $fetch(`${apiBase}/portal/login-success`, { 
+                method: 'POST',
+                body: { email: form.username }
+            })
+            
+            success.value = true
+            
+            setTimeout(() => {
+                window.location.href = "http://www.google.com";
             }, 1500)
         }
     } catch (e) {

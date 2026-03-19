@@ -9,6 +9,14 @@ export const useAuth = () => {
         localStorage.setItem('auth_user', JSON.stringify(userData))
     }
 
+    // Hydrate on client side
+    if (process.client) {
+        const storedUser = localStorage.getItem('auth_user')
+        if (storedUser && !user.value) {
+            user.value = JSON.parse(storedUser)
+        }
+    }
+
     const logout = () => {
         token.value = null
         user.value = null

@@ -5,14 +5,26 @@
         <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Traffic Monitor</h2>
         <p class="text-gray-500 mt-1">Real-time network inspection and AI classification</p>
       </div>
-      <div class="flex items-center space-x-3">
-        <button @click="refreshTraffic" class="px-4 py-2 bg-white border border-gray-200 text-gray-900 font-bold rounded-lg hover:bg-gray-50 transition-all flex items-center space-x-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>Refresh Feed</span>
-        </button>
+      <div class="flex items-center space-x-6">
+      <div class="flex-1 flex items-center space-x-3 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm min-w-[300px]">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Search by URL, IP or User..." 
+          class="bg-transparent border-none focus:ring-0 text-sm font-medium w-full"
+        />
       </div>
+      <div class="flex items-center space-x-3 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+        <span class="text-[10px] font-black text-gray-400 uppercase">Device:</span>
+        <select v-model="selectedDevice" class="bg-transparent border-none focus:ring-0 text-xs font-bold text-gray-900 pr-8">
+            <option value="">All Devices</option>
+            <option v-for="d in devices" :key="d.id" :value="d.macAddress">{{ d.deviceName }} ({{ d.ipAddress }})</option>
+        </select>
+      </div>
+    </div>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -20,17 +32,9 @@
       <div class="lg:col-span-3 glass-card overflow-hidden">
         <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white bg-opacity-50">
           <div class="flex items-center space-x-4">
-             <div class="relative">
-                <input type="text" placeholder="Filter by Domain..." class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none w-64 transition-all">
-             </div>
-             <select v-model="selectedDevice" class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none font-bold">
-                <option value="all">All Devices</option>
-                <option v-for="device in devices" :key="device.id" :value="device.id">
-                   {{ device.deviceName }} ({{ device.ipAddress }})
-                </option>
-             </select>
+             <!-- Removed old filter inputs -->
           </div>
-          <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Showing {{ trafficLogs.length }} Live Connections</div>
+          <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Showing {{ filteredLogs.length }} Live Connections</div>
         </div>
 
         <div class="overflow-x-auto">
@@ -38,7 +42,6 @@
             <thead>
               <tr class="bg-gray-50 text-gray-500 text-[10px] uppercase font-bold tracking-widest border-b border-gray-100">
                 <th class="px-6 py-4">State</th>
-                <th class="px-6 py-4">Target Destination</th>
                 <th class="px-6 py-4">AI Category</th>
                 <th class="px-6 py-4">Device / User</th>
                 <th class="px-6 py-4">Confidence</th>
@@ -47,17 +50,22 @@
               </tr>
             </thead>
               <tbody class="divide-y divide-gray-100 italic font-mono text-xs">
-                <tr v-for="log in trafficLogs" :key="log.id" class="hover:bg-gray-50 transition-colors bg-white group">
+                <tr v-for="log in filteredLogs" :key="log.id" class="hover:bg-gray-50 transition-colors" :class="log.isBlocked ? 'bg-red-50/30' : ''">
                 <td class="px-6 py-4">
-                  <div class="flex items-center space-x-2">
-                     <span :class="getStatusClass(log.isBlocked)" class="w-2 h-2 rounded-full inline-block"></span>
-                     <span class="text-[10px] font-bold uppercase tracking-tight">{{ log.isBlocked ? 'Blocked' : 'Allowed' }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="max-w-xs truncate">
-                     <p class="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ log.url }}</p>
-                     <p class="text-[10px] text-gray-400">Method: {{ log.method }} | Size: {{ log.totalSize }}KB</p>
+                  <div class="flex items-center space-x-3">
+                    <div :class="log.isBlocked ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'" class="w-8 h-8 rounded-lg flex items-center justify-center">
+                      <svg v-if="log.isBlocked" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                      </svg>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-xs font-black text-gray-900 truncate uppercase mt-0.5 tracking-tighter">{{ log.domain }}</p>
+                      <p class="text-[10px] text-gray-500 truncate italic font-mono">{{ log.url }}</p>
+                      <span v-if="log.isBlocked" class="text-[8px] font-black text-red-600 uppercase tracking-widest mt-1 block">Blocked Attempt</span>
+                    </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
@@ -78,7 +86,7 @@
                 <td class="px-6 py-4 text-right text-gray-400">
                   {{ formatTime(log.requestTimestamp) }}
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-right flex items-center justify-end space-x-2">
                   <button 
                     v-if="!log.isBlocked"
                     @click="blockDomain(log.domain)" 
@@ -86,7 +94,13 @@
                   >
                     Block
                   </button>
-                  <span v-else class="text-[10px] text-gray-400 font-bold uppercase">Locked</span>
+                  <button 
+                    v-else
+                    @click="reportIncorrect(log)" 
+                    class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
+                  >
+                    Report Incorrect
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -131,34 +145,40 @@
         </div>
       </div>
     </div>
-  </NuxtLayout>
+  </NuxtLayout> 
 </template>
 
 <script setup>
 definePageMeta({
-  layout: false
+  layout: 'dashboard'
 })
 
 const apiBase = 'http://localhost:1998/api/v1'
-const selectedDevice = ref('all')
+const searchQuery = ref('')
+const selectedDevice = ref('')
 
-// Fetch active devices for the filter
+const { data: logsData, refresh: refreshTraffic } = await useFetch(`${apiBase}/traffic/logs`, {
+    params: { limit: 100 }
+})
 const { data: devicesData } = await useFetch(`${apiBase}/devices/active`)
+
+const logs = computed(() => logsData.value?.content || [])
 const devices = computed(() => devicesData.value || [])
 
-// Fetch traffic logs from backend with dynamic endpoint based on filter
-const { data: trafficData, refresh: refreshTraffic } = await useFetch(() => {
-  const endpoint = selectedDevice.value === 'all' 
-    ? `${apiBase}/traffic/logs` 
-    : `${apiBase}/traffic/logs/device/${selectedDevice.value}`
-  return endpoint
-}, {
-  query: { page: 0, size: 20 },
-  watch: [selectedDevice],
-  default: () => ({ content: [] })
+// Filter by searchQuery and selectedDevice
+const filteredLogs = computed(() => {
+  return logs.value.filter(log => {
+    const matchesSearch = !searchQuery.value || 
+      log.url.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      log.domain.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (log.username && log.username.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+      (log.ipAddress && log.ipAddress.includes(searchQuery.value))
+      
+    const matchesDevice = !selectedDevice.value || log.macAddress === selectedDevice.value
+    
+    return matchesSearch && matchesDevice
+  })
 })
-
-const trafficLogs = computed(() => trafficData.value?.content || [])
 
 const formatTime = (date) => {
     if (!date) return '--:--:--'
@@ -175,8 +195,32 @@ const getCategoryClass = (category) => {
         case 'ADULT_CONTENT': return 'bg-red-50 text-red-700'
         case 'SOCIAL_MEDIA': return 'bg-amber-50 text-amber-700'
         case 'GAMING': return 'bg-purple-50 text-purple-700'
+        case 'SECURITY_EVASION': return 'bg-black text-white'
         default: return 'bg-gray-50 text-gray-700'
     }
+}
+
+const reportIncorrect = async (logEntry) => {
+  if (!confirm(`Report incorrect classification for ${logEntry.url}? This will be used to retrain the AI.`)) return
+  
+  try {
+    const { data, error } = await useFetch(`${apiBase}/traffic/report-incorrect`, {
+      method: 'POST',
+      body: { 
+        logId: logEntry.id, 
+        correctCategory: 'BENIGN',
+        userId: 'admin'
+      }
+    })
+    
+    if (error.value) throw error.value
+    
+    alert(`Feedback submitted for ${logEntry.domain}. The model will be adjusted.`)
+    refreshTraffic()
+  } catch (err) {
+    console.error('Failed to submit feedback:', err)
+    alert('Failed to submit feedback.')
+  }
 }
 
 const blockDomain = async (domain) => {
