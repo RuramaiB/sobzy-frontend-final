@@ -17,7 +17,7 @@
         </div>
 
         <div class="flex items-center space-x-4">
-          <NuxtLink to="/login" class="text-sm font-bold uppercase tracking-widest hover:text-gray-500 transition-colors pr-4 border-r border-gray-100">Login</NuxtLink>
+          <NuxtLink to="/login" class="text-sm font-bold uppercase tracking-widest hover:text-gray-500 transition-colors pr-4 border-r border-gray-100">Connect</NuxtLink>
           <NuxtLink to="/dashboard" class="premium-button !py-2.5">Launch Dashboard</NuxtLink>
         </div>
       </div>
@@ -123,6 +123,7 @@
         <div class="flex space-x-6 text-sm font-bold uppercase tracking-widest text-gray-500">
           <a href="#" class="hover:text-gray-900">Privacy</a>
           <a href="#" class="hover:text-gray-900">Legal</a>
+          <NuxtLink to="/admin-login" class="hover:text-gray-900 font-black">Admin Portal</NuxtLink>
         </div>
       </div>
     </footer>

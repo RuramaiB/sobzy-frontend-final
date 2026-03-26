@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-const { user, token, logout: handleLogout } = useAuth()
+const { user, logout: handleLogout } = useAuth()
 
 const userInitials = computed(() => {
   if (!user.value?.fullName) return 'U'
@@ -96,18 +96,6 @@ const userInitials = computed(() => {
 const logout = () => {
   handleLogout()
 }
-
-onMounted(() => {
-  if (!token.value) {
-    navigateTo('/login')
-  }
-})
-
-watch(token, (newVal) => {
-  if (!newVal) {
-    navigateTo('/login')
-  }
-})
 </script>
 
 <style scoped>

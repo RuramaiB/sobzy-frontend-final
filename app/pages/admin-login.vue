@@ -18,8 +18,8 @@
 
       <div class="glass-card p-10 border-2 border-gray-900/5 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]">
         <div class="mb-10 text-center">
-          <h2 class="text-3xl font-black text-gray-900 tracking-tight mb-2">Network Login</h2>
-          <p class="text-gray-500 font-medium text-sm">Enter your email to access the network services.</p>
+          <h2 class="text-3xl font-black text-gray-900 tracking-tight mb-2">Admin Login</h2>
+          <p class="text-gray-500 font-medium text-sm">Sign in with your administrative credentials.</p>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-6">
@@ -28,15 +28,26 @@
           </div>
 
           <div v-if="success" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-xl">
-             <p class="text-xs font-bold text-green-700 uppercase tracking-wider">Connection Successful!</p>
+             <p class="text-xs font-bold text-green-700 uppercase tracking-wider">Authentication Successful!</p>
           </div>
 
           <div class="space-y-2">
-            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Email Address</label>
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Username</label>
             <input 
               v-model="form.username"
               type="text" 
-              placeholder="e.g. user@hit.ac.zw"
+              placeholder="admin"
+              class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-gray-900 focus:bg-white outline-none transition-all font-bold text-gray-900"
+              required
+            >
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Password</label>
+            <input 
+              v-model="form.password"
+              type="password" 
+              placeholder="••••••••"
               class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-gray-900 focus:bg-white outline-none transition-all font-bold text-gray-900"
               required
             >
@@ -48,37 +59,23 @@
             class="w-full premium-button !py-5 flex items-center justify-center space-x-3 group mt-4 transition-all active:scale-95 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl font-bold"
           >
             <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white/20 border-t-white rounded-full"></span>
-            <span v-else class="text-lg">Connect to Network</span>
+            <span v-else class="text-lg">Sign In</span>
             <svg v-if="!loading" class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </button>
         </form>
 
-        <div class="mt-8 text-center border-t border-gray-100 pt-8 flex justify-between">
-            <NuxtLink to="/admin-login" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors">
-                Administrator Login →
+        <div class="mt-8 text-center border-t border-gray-100 pt-8">
+            <NuxtLink to="/login" class="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors">
+                ← Back to Network Login
             </NuxtLink>
-            <NuxtLink to="/register" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors">
-                Join System
-            </NuxtLink>
-        </div>
-
-        <!-- Security Certificate Section -->
-        <div class="mt-8 p-6 bg-gray-50 rounded-[24px] border-2 border-dashed border-gray-200 text-center">
-            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">SSL Security Setup</h3>
-            <p class="text-[11px] font-bold text-gray-500 mb-4 leading-relaxed">To access Gmail, Google Maps, and secure sites, please install our security certificate.</p>
-            <a :href="`http://${appHostname}:1998/api/v1/portal/ca-cert`" download
-               class="inline-flex items-center space-x-2 px-5 py-2.5 bg-gray-900 text-white text-[10px] font-black uppercase tracking-wider rounded-xl hover:shadow-xl hover:-translate-y-0.5 transition-all outline-none">
-               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-               <span>Download Certificate</span>
-            </a>
         </div>
       </div>
 
       <p class="mt-12 text-center text-gray-400 text-[10px] font-bold uppercase tracking-widest leading-loose">
-        By connecting, you agree to the HIT <br>
-        Acceptable Use Policy & Privacy standards.
+        Harare Institute of Technology <br>
+        Administrative Access & Control
       </p>
     </div>
   </div>
@@ -94,14 +91,10 @@ const auth = useAuth()
 const loading = ref(false)
 const error = ref(null)
 const success = ref(false)
-const appHostname = ref('localhost')
-
-onMounted(() => {
-    appHostname.value = window.location.hostname
-})
 
 const form = reactive({
-  username: ''
+  username: '',
+  password: ''
 })
 
 const handleLogin = async () => {
@@ -109,21 +102,23 @@ const handleLogin = async () => {
     error.value = null
     try {
         const hostname = window.location.hostname
-        const apiBase = `http://${hostname}:1998/api/v1`
+        const apiBase = `http://${hostname}:1998/api/v1/auth`
         
-        await $fetch(`${apiBase}/portal/login-success`, { 
+        const response = await $fetch(`${apiBase}/login`, {
             method: 'POST',
-            body: { email: form.username }
+            body: form
         })
         
+        auth.login(response.accessToken, response.user)
         success.value = true
         
         setTimeout(() => {
-            window.location.href = "http://www.google.com";
-        }, 1500)
+            router.push('/dashboard')
+        }, 1000)
+        
     } catch (e) {
-        console.error("Login failed", e)
-        error.value = e.data?.message || "Authentication failed. Please check your credentials."
+        console.error("Admin login failed", e)
+        error.value = e.data?.message || "Authentication failed. Please check your admin credentials."
     } finally {
         loading.value = false
     }
