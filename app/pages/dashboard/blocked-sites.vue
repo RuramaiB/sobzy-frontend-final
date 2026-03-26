@@ -92,32 +92,48 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-const apiBase = 'http://localhost:1998/api/v1'
+const apiBase = ref('http://localhost:1998/api/v1')
 const showAddModal = ref(false)
 const newSite = ref({ url: '', reason: '' })
 
-const { data: sitesData, refresh: refreshSites } = await useFetch(`${apiBase}/blocked-sites`)
+onMounted(() => {
+    apiBase.value = `http://${window.location.hostname}:1998/api/v1`
+})
+
+const { data: sitesData, refresh: refreshSites } = await useFetch(() => `${apiBase.value}/blocked-sites`)
 const blockedSites = computed(() => sitesData.value || [])
 
 const addSite = async () => {
    if (!newSite.value.url) return
-   await $fetch(`${apiBase}/blocked-sites`, {
-      method: 'POST',
-      body: newSite.value
-   })
-   newSite.value = { url: '', reason: '' }
-   showAddModal.value = false
-   refreshSites()
+   try {
+     await $fetch(`${apiBase.value}/blocked-sites`, {
+        method: 'POST',
+        body: newSite.value
+     })
+     newSite.value = { url: '', reason: '' }
+     showAddModal.value = false
+     refreshSites()
+   } catch (e) {
+     console.error("Failed to add blocked site", e)
+   }
 }
 
 const deleteSite = async (id) => {
-   await $fetch(`${apiBase}/blocked-sites/${id}`, { method: 'DELETE' })
-   refreshSites()
+   try {
+     await $fetch(`${apiBase.value}/blocked-sites/${id}`, { method: 'DELETE' })
+     refreshSites()
+   } catch (e) {
+     console.error("Failed to delete blocked site", e)
+   }
 }
 
 const toggleStatus = async (id) => {
-   await $fetch(`${apiBase}/blocked-sites/${id}/toggle`, { method: 'PATCH' })
-   refreshSites()
+   try {
+     await $fetch(`${apiBase.value}/blocked-sites/${id}/toggle`, { method: 'PATCH' })
+     refreshSites()
+   } catch (e) {
+     console.error("Failed to toggle blocked site", e)
+   }
 }
 
 const formatDate = (date) => {

@@ -22,7 +22,7 @@
       <div class="glass-card p-6">
         <p class="text-sm font-medium text-gray-500">Total Bandwidth</p>
         <div class="flex items-end justify-between mt-2">
-          <h3 class="text-2xl font-bold">{{ stats.totalBandwidth }} TB</h3>
+          <h3 class="text-2xl font-bold">{{ (stats.totalBandwidth / (1024 * 1024)).toFixed(2) }} MB</h3>
           <span class="text-green-600 text-xs font-bold">+12% vs last wk</span>
         </div>
         <div class="w-full bg-gray-100 h-1.5 rounded-full mt-4 overflow-hidden">
@@ -33,17 +33,17 @@
         <p class="text-sm font-medium text-gray-500">Blocked Requests</p>
         <div class="flex items-end justify-between mt-2">
           <h3 class="text-2xl font-bold">{{ stats.blockedRequests }}</h3>
-          <span class="text-red-600 text-xs font-bold">+5.2% automated</span>
+          <span class="text-red-600 text-xs font-bold">{{ stats.blockRate.toFixed(1) }}% Rate</span>
         </div>
         <div class="w-full bg-gray-100 h-1.5 rounded-full mt-4 overflow-hidden">
           <div class="bg-gray-400 h-full w-[40%]"></div>
         </div>
       </div>
       <div class="glass-card p-6">
-        <p class="text-sm font-medium text-gray-500">Active Sessions</p>
+        <p class="text-sm font-medium text-gray-500">Active Devices</p>
         <div class="flex items-end justify-between mt-2">
-          <h3 class="text-2xl font-bold">{{ stats.activeSessions }}</h3>
-          <span class="text-blue-600 text-xs font-bold">Peak hours</span>
+          <h3 class="text-2xl font-bold">{{ stats.activeDevices || 0 }}</h3>
+          <span class="text-blue-600 text-xs font-bold">{{ stats.activeUsers || 0 }} Users</span>
         </div>
         <div class="w-full bg-gray-100 h-1.5 rounded-full mt-4 overflow-hidden">
           <div class="bg-blue-500 h-full w-[80%]"></div>
@@ -117,17 +117,18 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-const config = useRuntimeConfig()
-const apiBase = 'http://localhost:1998/api/v1'
+const apiBase = ref('http://localhost:1998/api/v1')
 
 // Fetch statistics from backend
-const { data: statsData, refresh: refreshStats } = await useFetch(`${apiBase}/traffic/statistics`, {
+const { data: statsData, refresh: refreshStats } = await useFetch(() => `${apiBase.value}/traffic/statistics`, {
   default: () => ({
     totalRequests: 0,
     blockedRequests: 0,
     allowedRequests: 0,
-    totalBandwidth: 1.2, // Simulated for now as backend might not have this aggregate
-    activeSessions: 84,   // Simulated for now
+    blockRate: 0,
+    totalBandwidth: 0,
+    activeDevices: 0,
+    activeUsers: 0,
     topDomains: {}
   })
 })
@@ -136,6 +137,7 @@ const stats = computed(() => statsData.value)
 
 // Refresh stats every 30 seconds
 onMounted(() => {
+  apiBase.value = `http://${window.location.hostname}:1998/api/v1`
   const interval = setInterval(refreshStats, 30000)
   onUnmounted(() => clearInterval(interval))
 })

@@ -62,16 +62,20 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-const apiBase = 'http://localhost:1998/api/v1'
+const apiBase = ref('http://localhost:1998/api/v1')
 const isScanning = ref(false)
 
-const { data: devicesData, refresh: refreshDevices } = await useFetch(`${apiBase}/devices/active`)
+onMounted(() => {
+    apiBase.value = `http://${window.location.hostname}:1998/api/v1`
+})
+
+const { data: devicesData, refresh: refreshDevices } = await useFetch(() => `${apiBase.value}/devices/active`)
 const activeDevices = computed(() => devicesData.value || [])
 
 const scanNetwork = async () => {
     isScanning.value = true
     try {
-        await $fetch(`${apiBase}/devices/scan`, { method: 'POST' })
+        await $fetch(`${apiBase.value}/devices/scan`, { method: 'POST' })
         refreshDevices()
     } finally {
         setTimeout(() => {
@@ -81,12 +85,12 @@ const scanNetwork = async () => {
 }
 
 const blockDevice = async (id) => {
-    await $fetch(`${apiBase}/devices/${id}/block`, { method: 'POST' })
+    await $fetch(`${apiBase.value}/devices/${id}/block`, { method: 'POST' })
     refreshDevices()
 }
 
 const unblockDevice = async (id) => {
-    await $fetch(`${apiBase}/devices/${id}/unblock`, { method: 'POST' })
+    await $fetch(`${apiBase.value}/devices/${id}/unblock`, { method: 'POST' })
     refreshDevices()
 }
 

@@ -170,7 +170,7 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-const apiBase = 'http://localhost:1998/api/v1/hotspot'
+const apiBase = ref('http://localhost:1998/api/v1/hotspot')
 const hotspotInfo = ref({
   ssid: '',
   password: '',
@@ -191,7 +191,7 @@ const isBroadcasting = computed(() => {
 
 const fetchHotspotDetails = async () => {
     try {
-        const data = await $fetch(`${apiBase}/details`)
+        const data = await $fetch(`${apiBase.value}/details`)
         hotspotInfo.value = data
     } catch (e) {
         console.error("Failed to fetch hotspot details", e)
@@ -202,7 +202,7 @@ const toggleHotspot = async () => {
     loading.value = true
     try {
         const action = isBroadcasting.value ? 'stop' : 'start'
-        await $fetch(`${apiBase}/${action}`, { method: 'POST' })
+        await $fetch(`${apiBase.value}/${action}`, { method: 'POST' })
         // Poll for status update
         await fetchHotspotDetails()
     } catch (e) {
@@ -213,6 +213,7 @@ const toggleHotspot = async () => {
 }
 
 onMounted(() => {
+    apiBase.value = `http://${window.location.hostname}:1998/api/v1/hotspot`
     fetchHotspotDetails()
     // Refresh periodically
     const interval = setInterval(fetchHotspotDetails, 5000)

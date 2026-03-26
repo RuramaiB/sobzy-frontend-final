@@ -22,23 +22,11 @@
           </svg>
           <span class="font-medium">Traffic Monitor</span>
         </NuxtLink>
-        <NuxtLink to="/dashboard/ai-intelligence" class="nav-link" active-class="active">
+        <NuxtLink to="/dashboard/network" class="nav-link" active-class="active">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
           </svg>
-          <span class="font-medium">AI Intelligence</span>
-        </NuxtLink>
-        <NuxtLink to="/dashboard/hotspot" class="nav-link" active-class="active">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 21.213 0" />
-          </svg>
-          <span class="font-medium">Hotspot</span>
-        </NuxtLink>
-        <NuxtLink to="/dashboard/devices" class="nav-link" active-class="active">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-          <span class="font-medium">Devices</span>
+          <span class="font-medium">Network Hub</span>
         </NuxtLink>
         <NuxtLink to="/dashboard/blocked-sites" class="nav-link" active-class="active">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
