@@ -119,8 +119,14 @@ const handleLogin = async () => {
         success.value = true
         
         setTimeout(() => {
-            window.location.href = "http://www.google.com";
-        }, 1500)
+            // Force Android to open the external default browser using Intent schemes
+            const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || window.opera);
+            if (isAndroid) {
+                window.location.href = "intent://www.google.com#Intent;scheme=https;action=android.intent.action.VIEW;end";
+            } else {
+                window.location.href = "https://www.google.com";
+            }
+        }, 1000)
     } catch (e) {
         console.error("Login failed", e)
         error.value = e.data?.message || "Authentication failed. Please check your credentials."
