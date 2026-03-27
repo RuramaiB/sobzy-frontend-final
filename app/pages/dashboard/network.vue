@@ -144,9 +144,13 @@
               <!-- Device Info -->
               <div class="flex-1 min-w-0">
                 <h4 class="text-lg font-black text-gray-900 truncate mb-1 group-hover:text-black transition-colors italic tracking-tight">{{ device.hostname || 'Unknown Device' }}</h4>
-                <div class="flex items-center space-x-2 mb-4">
-                    <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[8px] uppercase font-black rounded tracking-widest">Active</span>
-                    <span v-if="device.ip?.startsWith('192.168.137')" class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[8px] uppercase font-black rounded tracking-widest">WLAN</span>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span :class="device.authenticated ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'" class="px-2 py-0.5 text-[8px] uppercase font-black rounded tracking-widest">
+                      {{ device.authenticated ? 'Logged In' : 'Portal Redirect' }}
+                    </span>
+                    <span :class="device.blocked ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'" class="px-2 py-0.5 text-[8px] uppercase font-black rounded tracking-widest">
+                      {{ device.blocked ? 'Internet: Blocked' : (device.authenticated ? 'Internet: Full Access' : 'Internet: Restricted') }}
+                    </span>
                 </div>
                 
                 <div class="space-y-2 font-mono">
